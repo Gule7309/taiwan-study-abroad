@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      String   @default("USER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile   Profile?
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  bio         String?
+  avatar      String?
+  phoneNumber String?
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model School {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  location    String?
+  country     String?  // 國家
+  city        String?  // 城市
+  website     String?
+  imageUrl    String?
+  logo        String?  // 學校標誌
+  rating      Float?
+  tuition     Float?   // 年度學費（美元）
+  majors      String?  // 主要專業列表，以逗號分隔
+  admissions  String?  // 錄取條件
+  facilities  String?  // 校園設施
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  favorites   Favorite[]
+}
+
+// 用戶收藏學校關係表
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, schoolId])
+}
+
+model Community {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  imageUrl    String?
+}
